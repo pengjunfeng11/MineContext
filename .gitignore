@@ -5,6 +5,7 @@ __pycache__
 /screenshots
 /logs
 /persist
+/debug
 /dist/*
 /venv/*
 /test_storage
@@ -15,3 +16,4 @@ __pycache__
 
 .venv/
 uv.lock
+uv.toml

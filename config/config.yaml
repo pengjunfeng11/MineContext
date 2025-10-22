@@ -9,6 +9,7 @@ enabled: true
 # Logging configuration
 logging:
   level: DEBUG  # Options: DEBUG, INFO, WARNING, ERROR, CRITICAL
+  log_path: "${CONTEXT_PATH:.}/logs/opencontext.log"  # Log file path
 
 user_setting_path: "${CONTEXT_PATH:.}/config/user_setting.yaml"
 
@@ -32,7 +33,7 @@ capture:
   enabled: true
   # Screenshot capture
   screenshot:
-    enabled: true
+    enabled: false
     capture_interval: 5  # Screenshot interval (seconds)
     storage_path: "${CONTEXT_PATH:.}/screenshots" # Screenshot save directory
 
@@ -183,14 +184,27 @@ prompts:
 
 # Content generation service configuration
 content_generation:
-  enabled: true
-  auto_start: true
+  # Debug configuration
+  debug:
+    enabled: false  # Enable debug mode to save generation messages and responses
+    output_path: "${CONTEXT_PATH:.}/debug/generation"  # Debug output directory
 
-  # Generation switches
-  enable_report_generation: true
-  enable_activity_generation: true
-  enable_todo_generation: true
-  enable_tips_generation: true
+  # Task configurations
+  activity:
+    enabled: true
+    interval: 900  # Seconds, minimum 600 (10 minutes), recommended 900-1800 (15-30 minutes)
+
+  tips:
+    enabled: true
+    interval: 3600  # Seconds, minimum 1800 (30 minutes), recommended 3600-7200 (1-2 hours)
+
+  todos:
+    enabled: true
+    interval: 1800  # Seconds, minimum 1800 (30 minutes), recommended 1800-3600 (30-60 minutes)
+
+  report:
+    enabled: true
+    time: "08:00"  # Daily report generation time (HH:MM)
 
 
 tools:
