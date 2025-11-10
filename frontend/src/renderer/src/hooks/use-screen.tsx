@@ -15,11 +15,11 @@ import {
   MonitorSession,
   ScreenshotRecord
 } from '@renderer/store/screen'
-import { captureScreenshotThunk } from '@renderer/store/thunk/screen-thunk'
-import { CaptureSource } from '@renderer/atom/capture.atom'
+import { CaptureSource } from '@interface/common/source'
 import axiosInstance from '@renderer/services/axiosConfig'
 import { timeToISOTimeString } from '@renderer/utils/time'
 import { getLogger } from '@shared/logger/renderer'
+import { captureScreenshotThunk } from '@renderer/store/thunk/screen-thunk'
 
 const logger = getLogger('useScreen')
 
@@ -85,10 +85,14 @@ export const useScreen = () => {
 
       const captureResults = await Promise.all(capturePromises)
       setIsProgressing(false)
-      logger.debug(
-        'Capture results:',
-        captureResults.map((r) => ({ name: r.source?.name, success: r.success }))
-      )
+      // Only log if there are failures
+      const failures = captureResults.filter((r) => !r.success)
+      if (failures.length > 0) {
+        logger.debug(
+          'Capture results with failures:',
+          captureResults.map((r) => ({ name: r.source?.name, success: r.success }))
+        )
+      }
     } catch (error) {
       setIsProgressing(false)
       logger.error('Failed to capture visible sources', { error })

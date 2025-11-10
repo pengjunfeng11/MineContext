@@ -256,6 +256,8 @@ def get_context_descriptions():
     """Get formatted context type descriptions"""
     descriptions = []
     for context_type in ContextType:
+        if context_type not in ContextDescriptions:
+            continue
         desc = ContextDescriptions[context_type]
         descriptions.append(f"- {context_type.value}: {desc['description']}")
     return "\n".join(descriptions)
@@ -270,9 +272,6 @@ def get_context_type_for_analysis(context_type_str: str) -> "ContextType":
     """
     Get the context type for analysis, with fault tolerance
     """
-    if not context_type_str:
-        return ContextType.SEMANTIC_CONTEXT
-
     # Normalize input
     context_type_str = context_type_str.lower().strip()
 
@@ -280,8 +279,7 @@ def get_context_type_for_analysis(context_type_str: str) -> "ContextType":
     if validate_context_type(context_type_str):
         return ContextType(context_type_str)
 
-    # Default to semantic context
-    return ContextType.SEMANTIC_CONTEXT
+    raise ValueError(f"Invalid context type: {context_type_str}")
 
 
 def get_context_type_choices_for_tools():
@@ -298,6 +296,8 @@ def get_context_type_descriptions_for_prompts():
     """
     descriptions = []
     for context_type in ContextType:
+        if context_type not in ContextDescriptions:
+            continue
         desc = ContextDescriptions[context_type]
         descriptions.append(f"*   `{context_type.value}`: {desc['description']}")
     return "\n            ".join(descriptions)
@@ -310,6 +310,8 @@ def get_context_type_descriptions_for_extraction():
     """
     descriptions = []
     for context_type in ContextType:
+        if context_type not in ContextDescriptions:
+            continue
         desc = ContextDescriptions[context_type]
         # Provide more detailed guidance for extraction scenarios, including identification indicators and examples
         key_indicators = desc.get("key_indicators", [])
@@ -337,6 +339,8 @@ def get_context_type_descriptions_for_retrieval():
     """
     descriptions = []
     for context_type in ContextType:
+        if context_type not in ContextDescriptions:
+            continue
         desc = ContextDescriptions[context_type]
         # Provide more focused descriptions for retrieval scenarios, highlighting purpose and classification priority
         description_parts = [f"`{context_type.value}`: {desc['description']}"]
