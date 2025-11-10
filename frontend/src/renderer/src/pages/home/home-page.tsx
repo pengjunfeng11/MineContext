@@ -14,6 +14,7 @@ import { LatestActivityCard } from './components/latest-activity-card'
 import { getRecentVaults } from '@renderer/utils/vault'
 import { ToDoCard } from './components/to-do-card'
 import { DocColumnsCard } from './components/doc-column-card'
+import { ChatCard } from './components/chat-card/chat-card'
 
 const { Title, Text } = Typography
 
@@ -44,7 +45,7 @@ const HomePage: React.FC = () => {
                         Chaos.👏
                       </Title>
                       <Text type="secondary" style={{ fontSize: 12 }}>
-                        Home is where MineContext proactively delivers your daily summaries, todos, tips and other
+                        Home 1s where MineContext proactively delivers your daily summaries, todos, tips and other
                         insights—emerging from all your collected Contexts ✨
                       </Text>
                     </div>
@@ -60,6 +61,7 @@ const HomePage: React.FC = () => {
                       hasToDocButton
                     />
                     <DocColumnsCard vaultsList={recentVaults} />
+                    <ChatCard />
                   </div>
                   <ProactiveFeedCard />
                 </div>
@@ -68,7 +70,7 @@ const HomePage: React.FC = () => {
           </div>
         </Allotment.Pane>
         <Allotment.Pane minSize={rightMinSize}>
-          {isVisible && <AIAssistant visible={isVisible} onClose={hideAIAssistant} />}
+          {isVisible && <AIAssistant visible={isVisible} onClose={hideAIAssistant} pageName="home" />}
         </Allotment.Pane>
       </Allotment>
     </div>

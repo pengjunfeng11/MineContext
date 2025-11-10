@@ -24,8 +24,15 @@ import { powerWatcher } from './background/os/Power'
 import { initLog } from '@shared/logger/init'
 import { getLogger } from '@shared/logger/main'
 import { monitor } from '@shared/logger/performance'
+import { TrayService } from './services/TrayService'
+import { ScreenMonitorTask } from './background/task/screen-monitor-task'
+import { autoUpdater } from "electron-updater"
+import { IpcChannel } from '@shared/IpcChannel'
+
 initLog()
 const logger = getLogger('MainEntry')
+
+autoUpdater.logger = logger
 
 const isPackaged = app.isPackaged
 const actuallyDev = isDev && !isPackaged // true
@@ -35,6 +42,16 @@ const originalConsoleLog = console.log
 
 // Screenshot cleanup timer
 let cleanupIntervalId: NodeJS.Timeout | null = null
+
+// Tray service instance
+let trayService: TrayService | null = null
+
+/**
+ * Get tray service instance
+ */
+export function getTrayService(): TrayService | null {
+  return trayService
+}
 
 /**
  * Start screenshot cleanup scheduled task
@@ -136,6 +153,15 @@ function createWindow() {
     }
   })
 
+  // Intercept window close event to hide instead of closing
+  mainWindow.on('close', (event) => {
+    if (!(app as any).isQuitting) {
+      event.preventDefault()
+      mainWindow.hide()
+      logger.info('Window hidden instead of closed')
+    }
+  })
+
   mainWindow.webContents.setWindowOpenHandler((details) => {
     shell.openExternal(details.url)
     return { action: 'deny' }
@@ -155,6 +181,7 @@ function createWindow() {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 let server: any
+const task = new ScreenMonitorTask()
 app.whenReady().then(() => {
   logger.info('app_started', { argv: process.argv, version: app.getVersion() })
   monitor.start(5000)
@@ -197,6 +224,7 @@ app.whenReady().then(() => {
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
   // see https://github.com/alex8088/electron-toolkit/tree/master/packages/utils
+
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
 
@@ -210,19 +238,37 @@ app.whenReady().then(() => {
 
   const mainWindow = createWindow()
   openInspector(mainWindow)
-  powerWatcher.run(mainWindow)
+  powerWatcher.run()
   startBackendInBackground(mainWindow)
+
+  // Initialize tray service
+  trayService = new TrayService(mainWindow)
+  trayService.create()
+  logger.info('Tray service initialized')
 
   // Start screenshot cleanup scheduled task
   startScreenshotCleanup()
+  task.init()
 
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
-    if (BrowserWindow.getAllWindows().length === 0) createWindow()
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow()
+    } else {
+      // If window exists but is hidden, show it
+      const existingWindow = BrowserWindow.getAllWindows()[0]
+      if (existingWindow) {
+        existingWindow.show()
+        existingWindow.focus()
+      }
+    }
   })
 
   registerIpc(mainWindow, app)
+
+  mainWindow.webContents.send(IpcChannel.Notification_Send, { id: '123', type: 'info', message: "hello",
+  timestamp: new Date().getTime(), source: 'update' })
 })
 
 // Quit when all windows are closed, except on macOS. There, it's common
@@ -230,12 +276,10 @@ app.whenReady().then(() => {
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
   monitor.stop()
-  if (process.platform !== 'darwin') {
-    // Restore the original console.log to avoid "Object has been destroyed" errors during exit
-    console.log = originalConsoleLog
-    stopBackendServerSync()
-    app.quit()
-  }
+  // Don't quit the app when windows are closed - keep running in tray
+  // App will only quit when user clicks "Quit" from tray menu
+  task.unregister()
+  logger.info('All windows closed, app continues running in tray')
 })
 
 // In this file you can include the rest of your app's specific main process
@@ -255,15 +299,26 @@ if (!isDev) {
 }
 
 app.on('before-quit', () => {
+  // Set flag to allow windows to actually close
+  ;(app as any).isQuitting = true
+
   // Restore the original console.log to avoid "Object has been destroyed" errors during exit
   console.log = originalConsoleLog
 
   // Stop screenshot cleanup scheduled task
   stopScreenshotCleanup()
 
+  // Destroy tray
+  if (trayService) {
+    trayService.destroy()
+    trayService = null
+  }
+
   if (server) {
     server.close()
   }
   stopBackendServerSync()
   db.close()
+
+  logger.info('App is quitting, all resources cleaned up')
 })

@@ -55,6 +55,40 @@ interface ScreenMonitorAPI {
     success: boolean
     error?: string
   }>
+  updateCurrentRecordApp: (appInfo: CaptureSource[]) => Promise<{
+    success: boolean
+    error?: string
+  }>
+  updateModelConfig: (config: Record<string, unknown>) => Promise<{
+    success: boolean
+    error?: string
+  }>
+  stopTask: () => Promise<{
+    success: boolean
+    error?: string
+  }>
+  startTask: () => Promise<{
+    success: boolean
+    error?: string
+  }>
+  checkCanRecord: () => Promise<{
+    canRecord: boolean
+    status: string
+  }>
+  getRecordingStats: () => Promise<{
+    processed_screenshots: number
+    failed_screenshots: number
+    generated_activities: number
+    next_activity_eta_seconds: number
+    last_activity_time: string | null
+    session_start_time: string
+    recent_errors: Array<{
+      error_message: string
+      processor_name: string
+      timestamp: string
+    }>
+    recent_screenshots: string[]
+  } | null>
 }
 
 interface dbAPI {

@@ -10,12 +10,18 @@ export enum IpcChannel {
   App_SetSpellCheckLanguages = 'app:set-spell-check-languages',
   App_ShowUpdateDialog = 'app:show-update-dialog',
   App_CheckForUpdate = 'app:check-for-update',
+  App_DownloadUpdate = 'app:download-update',
+  App_QuitAndInstall = 'app:quit-and-install',
+  App_CancelDownload = 'app:cancel-download',
   App_Reload = 'app:reload',
   App_Info = 'app:info',
   App_Proxy = 'app:proxy',
   App_SetLaunchToTray = 'app:set-launch-to-tray',
   App_SetTray = 'app:set-tray',
   App_SetTrayOnClose = 'app:set-tray-on-close',
+  Tray_UpdateRecordingStatus = 'tray:update-recording-status',
+  Tray_Show = 'tray:show',
+  Tray_Hide = 'tray:hide',
   App_SetTheme = 'app:set-theme',
   App_SetAutoUpdate = 'app:set-auto-update',
   App_SetTestPlan = 'app:set-test-plan',
@@ -324,5 +330,13 @@ export enum IpcChannel {
   // settings
   Screen_Monitor_Get_Settings = 'screen-monitor:get-settings',
   Screen_Monitor_Set_Settings = 'screen-monitor:set-settings',
-  Screen_Monitor_Clear_Settings = 'screen-monitor:clear-settings'
+  Screen_Monitor_Clear_Settings = 'screen-monitor:clear-settings',
+  Screen_Monitor_Get_Recording_Stats = 'screen-monitor:get-recording-stats',
+
+  // task
+  Task_Update_Model_Config = 'task:update-model-config',
+  Task_Start = 'task:start',
+  Task_Stop = 'task:stop',
+  Task_Update_Current_Record_App = 'task:update-current-record-app',
+  Task_Check_Can_Record = 'task:check-can-record'
 }

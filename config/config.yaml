@@ -28,8 +28,6 @@ vlm_model:
   api_key: "aa1d9e8c-e987-4c0a-be02-fe7f70dec901"
   model: "doubao-seed-1-6-flash-250828"
   provider: ""
-  # max_tokens: 4096
-  temperature: 0.7
 
 embedding_model:
   base_url: "https://ark.cn-beijing.volces.com/api/v3"
@@ -80,7 +78,7 @@ processing:
   screenshot_processor:
     enabled: true
     dedup_cache_size: 30
-    similarity_hash_threshold: 5
+    similarity_hash_threshold: 7
     batch_size: 20 # Increase batch size to improve throughput
     batch_timeout: 10 # Reduce timeout to improve response speed
     max_image_size: 1920 # Limit image size to reduce memory usage
